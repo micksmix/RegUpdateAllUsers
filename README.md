@@ -31,3 +31,5 @@ To set this binary value using the script, you would modify line 60 to be:
 
    SetBinaryRegKeys sRegistryRootToUse, strRegPathParent03, "My Test Binary Value","hex:23,00,41,00,43,00,42,00,6c,00"
    
+
+LICENSE: BSD 3-clause
