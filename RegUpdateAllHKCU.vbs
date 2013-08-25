@@ -1,5 +1,5 @@
-'On Error Resume Next
- Option Explicit  
+On Error Resume Next
+' Option Explicit  
 ' AUTHOR: Mick Grove 
 ' http://micksmix.wordpress.com 
 ' 
