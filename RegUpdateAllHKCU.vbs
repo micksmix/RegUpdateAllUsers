@@ -1,16 +1,23 @@
-On Error Resume Next
-' Option Explicit  
+'On Error Resume Next
+ Option Explicit  
 ' AUTHOR: Mick Grove 
 ' http://micksmix.wordpress.com 
-' 
-' Last Updated: July 26, 2013 
 ' 
 ' Tested and works on Windows XP and Windows 7 (x64) 
 ' Should work fine on Windows 2000 and newer OS' 
 ' 
 ' Script name: RegUpdateAllHKCU.vbs 
-' Run with cscript to suppress dialogs:   cscript.exe RegUpdateAllHKCU.vbs 
-     
+' Run with cscript to suppress dialogs:   cscript.exe RegUpdateAllHKCU.vbs
+'
+' CHANGELOG:
+'
+' 8/25/13 - Added ability to delete keys
+' 4/23/13 - Added ability to write REG_BINARY values
+' 4/11/13 - Fixed bug where it wouldn't work when run by SYSTEM account
+' 3/28/13 - Huge code cleanup and bug fixes
+' 1/13/12 - Initial release
+'
+'    
 Dim WshShell, RegRoot, objFSO
 Set WshShell = CreateObject("WScript.shell")
 Set objFSO = CreateObject("Scripting.FileSystemObject")
@@ -37,7 +44,7 @@ WScript.Quit(0)
 '                                                                   | 
 '==================================================================== 
   
-Sub KeysToSet(sRegistryRootToUse) 
+Sub KeysToModify(sRegistryRootToUse) 
     '============================================== 
     ' Change variables here, or add additional keys 
     '============================================== 
@@ -61,9 +68,28 @@ Sub KeysToSet(sRegistryRootToUse)
     WshShell.RegWrite sRegistryRootToUse & "\" & strRegPathParent03 & "\", ""
     SetBinaryRegKeys sRegistryRootToUse, strRegPathParent03, "My Test Binary Value","hex:23,00,41,00,43,00,42,00,6c,00"
     ' 
-    ' You can add additional registry keys here if you would like 
+    ' You can add additional registry keys to write here if you would like 
     ' 
+	
+	'=======================
+	' DELETING KEYS
+	'=======================
+	'
+	' This will RECURSIVELY delete the parent reg key and all items below it. 
+	' USE CAUTION!
+	'
+	Dim sSubkeyPathToDelete 
+	sSubkeyPathToDelete = "Software\_Test"
+	'
+	Call DeleteSubkeysRecursively(sRegistryRootToUse, sSubkeyPathToDelete) ' recursively deletes the binary reg key we added earlier
+	'
+	'
+	' This will delete just a single value
+	Call DeleteSingleValue(sRegistryRootToUse, strRegPathParent02, "FormSuggest PW Ask") ' deletes the 'FormSuggest PW Ask' key set earlier
+	'
 End Sub
+'
+'
 '
 '
 '
@@ -78,6 +104,34 @@ End Sub
 '
 '
 '
+' 
+
+Sub DeleteSingleValue(RegRoot, strRegistryKey, strValue)
+	If Left(strRegistryKey,1) = "\" Then 
+		strRegistryKey = Mid(strRegistryKey, 2)
+	End If
+
+    WshShell.Run "reg.exe delete " & chr(34) & RegRoot & "\" & strRegistryKey & chr(34) & " /v " & chr(34) & strValue & chr(34) & " /f", 0, True
+End Sub
+
+Sub DeleteSubkeysRecursively(RegRoot, strRegistryKey)
+	'
+	' BE VERY CAREFUL CALLING THIS SUB
+	'
+	' This will RECURSIVELY delete the requested path...meaning
+	'  it will delete the path and everything beneath it!
+	' 
+	' This action cannot be undone!
+	'
+
+	If Left(strRegistryKey,1) = "\" Then 
+		strRegistryKey = Mid(strRegistryKey, 2)
+	End If
+
+    WshShell.Run "reg.exe delete " & chr(34) & RegRoot & "\" & strRegistryKey & chr(34) & " /f", 0, True
+    'wscript.echo "reg.exe delete " & chr(34) & RegRoot & "\" & strRegistryKey & chr(34) & " /f"
+End Sub
+
 Function SetBinaryRegKeys(sRegistryRootToUse, strRegPathParent, sKeyName, sHexString)
   
     Dim sBinRegRoot
@@ -260,7 +314,7 @@ Sub LoadProfileHive(sProfilePath, sCurrentUser)
   
         If Len(sUserSID) > 1 Then
             WScript.Echo "  Updating another logged-on user: " & sCurrentUser & vbCrLf 
-            Call KeysToSet("HKEY_USERS\" & sUserSID) 
+            Call KeysToModify("HKEY_USERS\" & sUserSID) 
         Else
             WScript.Echo("  *** An error occurred while loading HKCU for this user: " & sCurrentUser) 
         End If
@@ -270,7 +324,7 @@ Sub LoadProfileHive(sProfilePath, sCurrentUser)
   
     '' 
     If sUserSID = "" then 'check to see if we just updated this user b/c they are already logged on 
-        Call KeysToSet(RegRoot) ' update registry settings for this selected user 
+        Call KeysToModify(RegRoot) ' update registry settings for this selected user 
     End If
     '' 
   
@@ -304,20 +358,20 @@ Sub Load_Registry_For_Each_User()
         
     WScript.Echo "Updating the logged-on user: " & sUserRunningScript & vbCrLf 
     '' 
-    Call KeysToSet("HKCU") 'Update registry settings for the user running the script 
+    Call KeysToModify("HKCU") 'Update registry settings for the user running the script 
     '' 
      
     sNewUserProfile = GetDefaultUserPath
      
     If objFSO.FileExists(sNewUserProfile & "\NTUSER.DAT") or objFSO.FileExists(chr(34) & sNewUserProfile & "\NTUSER.DAT" & chr(34)) Then
         WScript.Echo "Updating the DEFAULT user profile which affects newly created profiles." & vbCrLf 
-        Call LoadProfileHive(sProfilePath, sCurrentUser)
+        Call LoadProfileHive(sNewUserProfile, "Default User Profile")
     Else
         WScript.Echo "Unable to update the DEFAULT user profile, because it could not be found at: " _
             & vbCrLf & sNewUserProfile & vbCrLf
     End If
      
-    Call LoadProfileHive(sNewUserProfile, "Default User Profile")
+    'Call LoadProfileHive(sNewUserProfile, "Default User Profile")
     '' 
       
     Set objRegistry = GetObject("winmgmts:{impersonationLevel=impersonate}!\\.\root\default:StdRegProv")
