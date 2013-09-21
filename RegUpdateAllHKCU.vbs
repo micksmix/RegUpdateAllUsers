@@ -49,6 +49,8 @@ Sub KeysToModify(sRegistryRootToUse)
     ' Change variables here, or add additional keys 
     '============================================== 
     ' 
+    On Error Resume Next
+    
     Dim strRegPathParent01 
     Dim strRegPathParent02 
     Dim strRegPathParent03
@@ -107,6 +109,8 @@ End Sub
 ' 
 
 Sub DeleteSingleValue(RegRoot, strRegistryKey, strValue)
+	On Error Resume Next
+    
 	If Left(strRegistryKey,1) = "\" Then 
 		strRegistryKey = Mid(strRegistryKey, 2)
 	End If
@@ -115,6 +119,8 @@ Sub DeleteSingleValue(RegRoot, strRegistryKey, strValue)
 End Sub
 
 Sub DeleteSubkeysRecursively(RegRoot, strRegistryKey)
+        On Error Resume Next
+    
 	'
 	' BE VERY CAREFUL CALLING THIS SUB
 	'
@@ -133,7 +139,8 @@ Sub DeleteSubkeysRecursively(RegRoot, strRegistryKey)
 End Sub
 
 Function SetBinaryRegKeys(sRegistryRootToUse, strRegPathParent, sKeyName, sHexString)
-  
+    On Error Resume Next
+    
     Dim sBinRegRoot
     Dim sBinRegPartialPath
     Dim arrBinRegRoot
@@ -150,6 +157,8 @@ Function SetBinaryRegKeys(sRegistryRootToUse, strRegPathParent, sKeyName, sHexSt
 End Function
   
 Function WriteBinaryValue(RegHive, strKeyPath, strValueName, strHexValues)
+    On Error Resume Next
+    
     Dim objRegistry
     Dim arrHexValues, arrDecValues
   
@@ -171,6 +180,8 @@ Function WriteBinaryValue(RegHive, strKeyPath, strValueName, strHexValues)
 End Function
   
 Function GetRegRootToUseForBinaryValues(sRegRoot)
+    On Error Resume Next
+    
     Dim sNewRoot
     Dim sPartialPath
     sRegRoot = UCase(sRegRoot)
@@ -234,6 +245,8 @@ Function GetRegRootToUseForBinaryValues(sRegRoot)
 End Function
   
 Function DecimalNumbers(arrHex)
+    On Error Resume Next
+    
     ' from: http://www.petri.co.il/forums/showthread.php?t=46158
     Dim i, strDecValues
     For i = 0 to Ubound(arrHex)
@@ -248,6 +261,8 @@ Function DecimalNumbers(arrHex)
 End Function
   
 Function GetDefaultUserPath
+    On Error Resume Next
+    
     Dim objRegistry
     Dim strKeyPath
     Dim strDefaultUser
@@ -273,6 +288,8 @@ Function GetDefaultUserPath
 End Function
   
 Function RetrieveUsernameFromPath(sTheProfilePath) 
+    On Error Resume Next
+    
     Dim lstPath 
     Dim sTmp 
     Dim sUsername 
@@ -287,6 +304,8 @@ Function RetrieveUsernameFromPath(sTheProfilePath)
 End Function
   
 Sub LoadProfileHive(sProfilePath, sCurrentUser)
+    On Error Resume Next
+    
     Dim intResultLoad, intResultUnload, sUserSID
  
     'Load user's HKCU into temp area under HKLM 
@@ -339,6 +358,7 @@ Sub LoadProfileHive(sProfilePath, sCurrentUser)
 End Sub
   
 Sub Load_Registry_For_Each_User() 
+    On Error Resume Next
          
     Dim sUserRunningScript, sComputerName 
     Dim objRegistry, objSubkey 
