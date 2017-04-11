@@ -22,14 +22,13 @@ However, there is another way.  The idea is to:
 It’s a bit of a tedious job, so I wrote a VBScript that takes care of all of the steps listed above. This script has been tested on Windows XP and Windows 7 (x64), but should work on Windows 2000 and newer. It relies on “reg.exe” which ships with all versions of Windows.
 
 The script can  set REG_BINARY keys as long as they are in the format used by a regedit.exe export. For example:
-
-   [HKEY_CURRENT_USER\Software\_Test\MyTestBinarySubkey]
-   "My Test Binary Value"=hex:23,00,41,00,43,00,42,00,6c,00
-
+```
+[HKEY_CURRENT_USER\Software\_Test\MyTestBinarySubkey]
+"My Test Binary Value"=hex:23,00,41,00,43,00,42,00,6c,00
+```
 
 To set this binary value using the script, you would modify line 82 to be:
-
-   SetBinaryRegKeys sRegistryRootToUse, strRegPathParent03, "My Test Binary Value","hex:23,00,41,00,43,00,42,00,6c,00"
+`SetBinaryRegKeys sRegistryRootToUse, strRegPathParent03, "My Test Binary Value","hex:23,00,41,00,43,00,42,00,6c,00"`
    
 
 LICENSE: BSD 3-clause
