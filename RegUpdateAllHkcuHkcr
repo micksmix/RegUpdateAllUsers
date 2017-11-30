@@ -8,7 +8,7 @@ On Error Resume Next
 ' Should work fine on Windows 2000 and newer OS' 
 ' 
 ' Script name: RegUpdateAllHkcuHkcr.vbs 
-' Run with cscript to suppress dialogs:   cscript.exe RegUpdateAllHKCU.vbs
+' Run with cscript to suppress dialogs:   cscript.exe RegUpdateAllHkcuHkcr.vbs
 '
 ' CHANGELOG:
 '
